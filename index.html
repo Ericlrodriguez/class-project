@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZ Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #employeeList {
+            margin-top: 20px;
+        }
+
+        #employeeList table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #employeeList th, #employeeList td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #employeeList td.total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Employee Tracking System</h2>
+
+    <label for="employeeName">Employee Name:</label>
+    <input type="text" id="employeeName" placeholder="Enter employee name" required>
+
+    <label for="employeePosition">Employee Position:</label>
+    <input type="text" id="employeePosition" placeholder="Enter employee position" required>
+
+    <label for="hourlyWage">Hourly Wage:</label>
+    <input type="number" id="hourlyWage" placeholder="Enter hourly wage" required>
+
+    <label for="hoursWorked">Hours Worked:</label>
+    <input type="number" id="hoursWorked" placeholder="Enter hours worked" required>
+
+    <label for="stateTax">State Tax Percentage:</label>
+    <input type="number" id="stateTax" placeholder="Enter state tax percentage">
+
+    <label for="federalTax">Federal Tax Percentage:</label>
+    <input type="number" id="federalTax" placeholder="Enter federal tax percentage">
+
+    <button onclick="addEmployee()">Add Employee</button>
+    <button onclick="printResults()">Print Results</button>
+
+    <div id="employeeList"></div>
+
+    <script>
+        var employees = [];
+
+        function addEmployee() {
+            var name = document.getElementById('employeeName').value;
+            var position = document.getElementById('employeePosition').value;
+            var hourlyWage = parseFloat(document.getElementById('hourlyWage').value);
+            var hoursWorked = parseFloat(document.getElementById('hoursWorked').value);
+            var stateTax = parseFloat(document.getElementById('stateTax').value) || 0;
+            var federalTax = parseFloat(document.getElementById('federalTax').value) || 0;
+
+            if (!name || !position || isNaN(hourlyWage) || isNaN(hoursWorked)) {
+                alert("Please enter valid information for the employee.");
+                return;
+            }
+
+            var totalEarnings = hourlyWage * hoursWorked;
+
+            var stateTaxAmount = (totalEarnings * stateTax) / 100;
+            var federalTaxAmount = (totalEarnings * federalTax) / 100;
+
+            var netEarnings = totalEarnings - stateTaxAmount - federalTaxAmount;
+
+            var employee = {
+                name: name,
+                position: position,
+                hourlyWage: hourlyWage,
+                hoursWorked: hoursWorked,
+                totalEarnings: totalEarnings,
+                stateTax: stateTax,
+                stateTaxAmount: stateTaxAmount,
+                federalTax: federalTax,
+                federalTaxAmount: federalTaxAmount,
+                netEarnings: netEarnings
+            };
+
+            employees.push(employee);
+
+            displayEmployeeList();
+        }
+
+        function printResults() {
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Employee List</title></head><body>');
+            printWindow.document.write('<h2>Employee List</h2>');
+            printWindow.document.write(document.getElementById('employeeList').innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        } 
+
+        function displayEmployeeList() {
+            var employeeListDiv = document.getElementById('employeeList');
+            employeeListDiv.innerHTML = "";
+
+            if (employees.length === 0) {
+                employeeListDiv.innerHTML = "<p>No employees added yet.</p>";
+                return;
+            }
+
+            var table = document.createElement('table');
+            var headerRow = table.insertRow(0);
+
+            var headers = ['Name', 'Position', 'Hourly Wage', 'Hours Worked', 'Total Earnings', 'State Tax', 'State Tax Amount', 'Federal Tax', 'Federal Tax Amount', 'Net Earnings'];
+            for (var i = 0; i < headers.length; i++) {
+                var headerCell = headerRow.insertCell(i);
+                headerCell.textContent = headers[i];
+            }
+
+            for (var j = 0; j < employees.length; j++) {
+                var row = table.insertRow(j + 1);
+                var employee = employees[j];
+
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                var cell6 = row.insertCell(5);
+                var cell7 = row.insertCell(6);
+                var cell8 = row.insertCell(7);
+                var cell9 = row.insertCell(8);
+                var cell10 = row.insertCell(9);
+
+                cell1.textContent = employee.name;
+                cell2.textContent = employee.position;
+                cell3.textContent = '$' + employee.hourlyWage.toFixed(2);
+                cell4.textContent = employee.hoursWorked;
+                cell5.textContent = '$' + employee.totalEarnings.toFixed(2);
+                cell6.textContent = employee.stateTax + '%';
+                cell7.textContent = '$' + employee.stateTaxAmount.toFixed(2);
+                cell8.textContent = employee.federalTax + '%';
+                cell9.textContent = '$' + employee.federalTaxAmount.toFixed(2);
+                cell10.textContent = '$' + employee.netEarnings.toFixed(2);
+            }
+
+            var totalRow = table.insertRow(employees.length + 1);
+            totalRow.className = 'total';
+
+            var totalLabelCell = totalRow.insertCell(0);
+            totalLabelCell.textContent = 'Total';
+
+            var emptyCell = totalRow.insertCell(1);
+
+            var totalHourlyWageCell = totalRow.insertCell(2);
+            var totalHoursWorkedCell = totalRow.insertCell(3);
+            var totalEarningsCell = totalRow.insertCell(4);
+            var totalStateTaxCell = totalRow.insertCell(5);
+            var totalStateTaxAmountCell = totalRow.insertCell(6);
+            var totalFederalTaxCell = totalRow.insertCell(7);
+            var totalFederalTaxAmountCell = totalRow.insertCell(8);
+            var totalNetEarningsCell = totalRow.insertCell(9);
+
+            var totalHourlyWage = employees.reduce(function (acc, employee) {
+                return acc + employee.hourlyWage;
+            }, 0);
+
+            var totalHoursWorked = employees.reduce(function (acc, employee) {
+                return acc + employee.hoursWorked;
+            }, 0);
+
+            var totalEarnings = employees.reduce(function (acc, employee) {
+                return acc + employee.totalEarnings;
+            }, 0);
+
+            var totalStateTax = employees.length > 0 ? (employees.reduce(function (acc, employee) {
+                return acc + employee.stateTax;
+            }, 0) / employees.length) : 0;
+
+            var totalStateTaxAmount = employees.reduce(function (acc, employee) {
+                return acc + employee.stateTaxAmount;
+            }, 0);
+
+            var totalFederalTax = employees.length > 0 ? (employees.reduce(function (acc, employee) {
+                return acc + employee.federalTax;
+            }, 0) / employees.length) : 0;
+
+            var totalFederalTaxAmount = employees.reduce(function (acc, employee) {
+                return acc + employee.federalTaxAmount;
+            }, 0);
+
+            var totalNetEarnings = employees.reduce(function (acc, employee) {
+                return acc + employee.netEarnings;
+            }, 0);
+
+            totalHourlyWageCell.textContent = '$' + (totalHourlyWage / employees.length).toFixed(2);
+            totalHoursWorkedCell.textContent = totalHoursWorked;
+            totalEarningsCell.textContent = '$' + totalEarnings.toFixed(2);
+            totalStateTaxCell.textContent = totalStateTax.toFixed(2) + '%';
+            totalStateTaxAmountCell.textContent = '$' + totalStateTaxAmount.toFixed(2);
+            totalFederalTaxCell.textContent = totalFederalTax.toFixed(2) + '%';
+            totalFederalTaxAmountCell.textContent = '$' + totalFederalTaxAmount.toFixed(2);
+            totalNetEarningsCell.textContent = '$' + totalNetEarnings.toFixed(2);
+
+            employeeListDiv.appendChild(table);
+        }
+    </script>
+
+</body>
+</html>
